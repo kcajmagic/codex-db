@@ -530,4 +530,6 @@ func TestImplementsInterfaces(t *testing.T) {
 	assert.True(ok, "not a pruner")
 	_, ok = dbConn.(db.RecordGetter)
 	assert.True(ok, "not an record getter")
+	_, ok = dbConn.(db.RecordListGetter)
+	assert.True(ok, "not an record list getter")
 }

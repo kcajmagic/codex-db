@@ -278,6 +278,21 @@ func (c *Connection) GetRecordsOfType(deviceID string, limit int, eventType db.E
 	return deviceInfo, nil
 }
 
+// GetDeviceList returns a list of records for a given device.
+func (c *Connection) GetList(limit, offset int) ([]db.Record, error) {
+	var (
+		deviceInfo []db.Record
+	)
+	err := c.finder.findRecords(&deviceInfo, limit, "OFFSET ?", offset)
+	if err != nil {
+		c.measures.SQLQueryFailureCount.With(db.TypeLabel, db.ReadType).Add(1.0)
+		return []db.Record{}, emperror.WrapWith(err, "Getting records from database failed")
+	}
+	c.measures.SQLReadRecords.Add(float64(len(deviceInfo)))
+	c.measures.SQLQuerySuccessCount.With(db.TypeLabel, db.ReadType).Add(1.0)
+	return deviceInfo, nil
+}
+
 // GetRecordsToDelete returns a list of record ids and deathdates not past a
 // given date.
 func (c *Connection) GetRecordsToDelete(shard int, limit int, deathDate int64) ([]db.RecordToDelete, error) {

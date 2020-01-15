@@ -78,3 +78,8 @@ type RecordGetter interface {
 	GetRecords(deviceID string, limit int) ([]Record, error)
 	GetRecordsOfType(deviceID string, limit int, eventType EventType) ([]Record, error)
 }
+
+// RecordListGetter is for iterating over all the events in the database
+type RecordListGetter interface {
+	GetList(limit, offset int) ([]Record, error)
+}

@@ -191,6 +191,18 @@ func (c *Connection) GetDeviceList(startDate time.Time, endDate time.Time, offse
 	return list, nil
 }
 
+// GetDeviceList returns a list of records for a given device.
+func (c *Connection) GetList(limit, offset int) ([]db.Record, error) {
+	deviceInfo, err := c.finder.findRecords(limit, "OFFSET ?", offset)
+	if err != nil {
+		c.measures.SQLQueryFailureCount.With(db.TypeLabel, db.ReadType).Add(1.0)
+		return []db.Record{}, emperror.WrapWith(err, "Getting records from database failed")
+	}
+	c.measures.SQLReadRecords.Add(float64(len(deviceInfo)))
+	c.measures.SQLQuerySuccessCount.With(db.TypeLabel, db.ReadType).Add(1.0)
+	return deviceInfo, nil
+}
+
 // InsertEvent adds a list of records to the table.
 func (c *Connection) InsertRecords(records ...db.Record) error {
 	rowsAffected, err := c.multiInsert.insert(records)
